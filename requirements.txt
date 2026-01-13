@@ -1,0 +1,36 @@
+# ===========================================
+# FakeClaude Code - Dependencies
+# ===========================================
+
+# Core
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+rich>=13.7.0
+click>=8.1.0
+
+# LLM APIs
+openai>=1.12.0
+anthropic>=0.18.0
+httpx>=0.26.0
+
+# Document Processing
+PyPDF2>=3.0.0
+python-docx>=1.1.0
+Pillow>=10.2.0
+pytesseract>=0.3.10
+
+# Code Analysis
+tree-sitter>=0.21.0
+pygments>=2.17.0
+
+# Async Support
+aiofiles>=23.2.0
+asyncio>=3.4.3
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+
+# Utilities
+pathspec>=0.12.0
+gitignore-parser>=0.1.0
