@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>可交互的九九乘法表</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>可交互的九九乘法表</h1>
+    <div class="theme-toggle">
+      <label>
+        <input type="checkbox" id="themeToggle" /> 暗色主题
+      </label>
+    </div>
+  </header>
+
+  <section class="controls" aria-label="控制面板">
+    <div class="control-group">
+      <label for="viewMode">显示模式：</label>
+      <select id="viewMode">
+        <option value="full">完整 9×9</option>
+        <option value="lower">左下三角</option>
+        <option value="upper">右上三角</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>
+        <input type="checkbox" id="showFormula" checked /> 在单元格中显示公式
+      </label>
+    </div>
+
+    <div class="control-group">
+      <label for="cellSize">单元格大小：</label>
+      <input id="cellSize" type="range" min="36" max="80" value="48" />
+      <span id="cellSizeValue">48px</span>
+    </div>
+
+    <div class="control-group">
+      <button id="clearLock" class="secondary">清除锁定</button>
+    </div>
+  </section>
+
+  <main>
+    <div id="statusBar" class="status" aria-live="polite">将鼠标悬停在单元格上查看详情，点击可锁定。</div>
+
+    <div id="tableContainer" class="table-container" tabindex="0" aria-label="九九乘法表"></div>
+
+    <section class="quiz" aria-label="练习模式">
+      <h2>练习模式</h2>
+      <div class="quiz-row">
+        <div id="quizQuestion" class="quiz-question">点击“出题”开始</div>
+        <input id="quizAnswer" type="number" inputmode="numeric" placeholder="答案" />
+        <button id="quizSubmit">提交</button>
+        <button id="quizNew">出题</button>
+      </div>
+      <div id="quizFeedback" class="quiz-feedback" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <small>提示：用方向键在表格中移动，回车键锁定/取消锁定。</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

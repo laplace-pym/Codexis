@@ -14,6 +14,9 @@ from .planner import Planner, ExecutionPlan, PlanStep
 from .executor import AgentExecutor
 from .coding_agent import CodingAgent
 from .error_analyzer import ErrorAnalyzer, ErrorAnalysis, ErrorType, AutoFixer
+from .task_analyzer import TaskAnalyzer, TaskComplexity
+from .chat_mode import ChatMode, ChatHistory
+from .coding_agent import AgentMode
 
 __all__ = [
     # State management
@@ -35,4 +38,11 @@ __all__ = [
     "ErrorAnalysis",
     "ErrorType",
     "AutoFixer",
+    # Task analysis
+    "TaskAnalyzer",
+    "TaskComplexity",
+    # Chat mode
+    "ChatMode",
+    "ChatHistory",
+    "AgentMode",
 ]

@@ -184,9 +184,97 @@ class ReadDocxTool(BaseTool):
             return ToolResult.error_result(f"Error reading Word document: {str(e)}")
 
 
+class ReadPPTTool(BaseTool):
+    """Tool for reading PowerPoint presentations."""
+
+    @property
+    def name(self) -> str:
+        return "read_ppt"
+
+    @property
+    def description(self) -> str:
+        return "Extract text content from a PowerPoint (.pptx) presentation."
+
+    @property
+    def parameters(self) -> dict:
+        return {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "description": "Path to the PowerPoint file"
+                },
+                "include_notes": {
+                    "type": "boolean",
+                    "description": "Include speaker notes",
+                    "default": True
+                }
+            },
+            "required": ["path"]
+        }
+
+    def execute(self, **kwargs) -> ToolResult:
+        path = kwargs.get("path")
+        include_notes = kwargs.get("include_notes", True)
+
+        try:
+            # Import python-pptx (optional dependency)
+            try:
+                from pptx import Presentation
+            except ImportError:
+                return ToolResult.error_result(
+                    "python-pptx is not installed. Run: pip install python-pptx"
+                )
+
+            file_path = Path(path).expanduser().resolve()
+
+            if not file_path.exists():
+                return ToolResult.error_result(f"File not found: {path}")
+
+            if file_path.suffix.lower() not in (".pptx", ".ppt"):
+                return ToolResult.error_result(f"Not a PowerPoint file: {path}")
+
+            prs = Presentation(str(file_path))
+            total_slides = len(prs.slides)
+
+            # Extract text from slides
+            text_parts = []
+            for i, slide in enumerate(prs.slides, 1):
+                slide_text = [f"--- Slide {i} ---"]
+
+                # Extract text from shapes
+                for shape in slide.shapes:
+                    if hasattr(shape, "text") and shape.text.strip():
+                        slide_text.append(shape.text)
+
+                # Extract speaker notes
+                if include_notes and slide.has_notes_slide:
+                    notes_frame = slide.notes_slide.notes_text_frame
+                    if notes_frame and notes_frame.text.strip():
+                        slide_text.append(f"\n[Speaker Notes]\n{notes_frame.text}")
+
+                if len(slide_text) > 1:  # More than just the header
+                    text_parts.append("\n".join(slide_text))
+
+            if not text_parts:
+                return ToolResult.success_result(
+                    f"PowerPoint has {total_slides} slides but no extractable text.",
+                    data={"slides": total_slides, "extracted": 0}
+                )
+
+            content = "\n\n".join(text_parts)
+            return ToolResult.success_result(
+                f"Extracted from {file_path} ({total_slides} slides):\n\n{content}",
+                data={"slides": total_slides, "extracted": len(text_parts)}
+            )
+
+        except Exception as e:
+            return ToolResult.error_result(f"Error reading PowerPoint: {str(e)}")
+
+
 class ReadImageTool(BaseTool):
     """Tool for extracting text from images using OCR."""
-    
+
     @property
     def name(self) -> str:
         return "read_image"

@@ -1,435 +1,226 @@
-# 🤖 Codexis - AI Coding Agent
+当然！基于你项目 **Codexis**（[https://github.com/laplace-pym/Codexis.git）我给你做了](https://github.com/laplace-pym/Codexis.git）我给你做了) **“GitHub 首页爆款 README”** 版本：
+📌 **重点吸引技术人 + 荣耀感 + 展示架构 + 快速体验写法**，你可以直接替换仓库的 README.md。
 
-一个类似 Claude Code 的代码智能体，能够根据自然语言指令自动生成、修改和测试代码，通过工具调用完成完整的软件开发闭环。
+---
 
-## ✨ 核心特性
+```markdown
+<p align="center">
+  <img src="https://raw.githubusercontent.com/laplace-pym/Codexis/main/assets/logo.png" width="180" alt="Codexis Logo"/>
+</p>
 
-### 1. 代码生成与修改
-- 根据自然语言指令生成完整、可运行的代码
-- 支持多文件项目结构（src/, tests/, configs/）
-- 支持增量代码修改（diff/patch 形式）
-- 智能代码块编辑
+<h1 align="center">🚀 Codexis</h1>
+<p align="center">
+  Next-Gen Streaming AI Coding Agent Framework  
+  <strong>让代码智能化思考、执行、修复、反馈 —— 更快、更稳、更酷。</strong>
+</p>
 
-### 2. 工具调用能力（Tool Use）
-- **文件操作**: 读取、写入、列目录、搜索、删除
-- **代码搜索**: grep 风格的正则搜索、符号查找
-- **文档解析**: PDF、Word (.docx)、图片 OCR
-- **代码修改**: diff/patch 应用、块编辑、代码插入
-- **代码分析**: 结构分析、测试生成、内容摘要
+<p align="center">
+  <a href="https://github.com/laplace-pym/Codexis/stargazers"><img src="https://img.shields.io/github/stars/laplace-pym/Codexis?style=social" alt="Stars"></a>
+  <a href="https://github.com/laplace-pym/Codexis/issues"><img src="https://img.shields.io/github/issues/laplace-pym/Codexis" alt="Issues"></a>
+  <a href="https://github.com/laplace-pym/Codexis/blob/main/LICENSE"><img src="https://img.shields.io/github/license/laplace-pym/Codexis" alt="MIT License"></a>
+</p>
 
-### 3. 代码执行与自动验证
-- 自动生成测试代码（pytest/unittest）
-- 沙箱环境安全执行代码
-- 捕获 stdout、stderr、exit code
-- 完整闭环：生成代码 → 执行 → 错误分析 → 自动修复 → 再执行
+---
 
-### 4. Agent 架构
-- **Planner**: 将用户需求拆解为可执行步骤
-- **Executor**: 执行计划，调用工具和 LLM
-- **ErrorAnalyzer**: 智能错误分析和修复建议
-- **AutoFixer**: 自动代码修复协调器
+## 💡 项目简介
 
-### 5. 多模型适配
-- DeepSeek（默认）
-- OpenAI (GPT-4o)
-- Anthropic (Claude)
-- 可扩展的 LLM Adapter 层
+**Codexis 是一个面向工程级 AI Coding Agent 的全栈框架**，它融合：
 
-## 🏗️ 系统架构
+✔ 智能任务路由  
+✔ 极致低延迟的流式执行引擎（h2A 双缓冲队列）  
+✔ 动态可扩展的 Agent 模式  
+✔ 可视化前端交互体验
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      CodingAgent                            │
-│  ┌─────────┐  ┌──────────┐  ┌───────────────┐              │
-│  │ Planner │  │ Executor │  │ ErrorAnalyzer │              │
-│  └────┬────┘  └────┬─────┘  └───────┬───────┘              │
-│       │            │                │                       │
-│       ▼            ▼                ▼                       │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │                    LLM Adapter                       │   │
-│  │  ┌──────────┐  ┌────────┐  ┌───────────┐           │   │
-│  │  │ DeepSeek │  │ OpenAI │  │ Anthropic │           │   │
-│  │  └──────────┘  └────────┘  └───────────┘           │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                           │                                 │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │                  Tool Registry                       │   │
-│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌─────────────┐  │   │
-│  │  │  File  │ │ Search │ │ Patch  │ │  Analysis   │  │   │
-│  │  │ Tools  │ │ Tools  │ │ Tools  │ │   Tools     │  │   │
-│  │  └────────┘ └────────┘ └────────┘ └─────────────┘  │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                           │                                 │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │                     Sandbox                          │   │
-│  │  (Python / JavaScript / Bash 安全执行环境)          │   │
-│  └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
+致力于打破传统 LLM 调用体验限制，让 AI 不只是“答题”，而是真正“执行 & 思考 & 修复”。
 
-## 📁 项目结构
+---
+
+## 🔥 核心能力
+
+### 🧠 任务难度智能路由
+
+系统自动分析输入任务难度，将请求分发到适配策略：
+
+| 难度 | 执行策略 |
+|------|-----------|
+| 简单 | 极速直达响应 |
+| 中等 | 标准计划 + 执行 |
+| 复杂 | 多阶段规划 + 自动修复 |
+
+📍 任务不再一刀切，全局策略优化性能与准确度。
+
+---
+
+### ⚡ h2A 双缓冲 一步消息队列
+
+革命性的 **Hybrid-2-Async（h2A）队列模型**：
 
 ```
-fakeclaude_code/
-├── agent/                  # Agent 核心
-│   ├── __init__.py
-│   ├── base.py            # 状态管理 (AgentState, AgentStep, AgentHistory)
-│   ├── planner.py         # 任务规划器
-│   ├── executor.py        # 执行器
-│   ├── coding_agent.py    # 主 Agent 类
-│   └── error_analyzer.py  # 错误分析和自动修复
-├── llm/                    # LLM 适配层
-│   ├── __init__.py
-│   ├── base.py            # BaseLLM 抽象接口
-│   ├── deepseek.py        # DeepSeek 实现
-│   ├── openai_adapter.py  # OpenAI 实现
-│   ├── anthropic_adapter.py # Anthropic 实现
-│   └── factory.py         # LLM 工厂
-├── tools/                  # 工具系统
-│   ├── __init__.py
-│   ├── base.py            # BaseTool 抽象接口
-│   ├── registry.py        # 工具注册表
-│   ├── file_tools.py      # 文件操作工具
-│   ├── code_executor.py   # 代码执行工具
-│   ├── doc_tools.py       # 文档解析工具
-│   ├── search_tools.py    # 搜索工具 (grep, find_symbol)
-│   ├── patch_tools.py     # 代码修改工具 (patch, edit_block)
-│   └── analysis_tools.py  # 分析工具 (analyze, test_gen, summarize)
-├── executor/               # 执行环境
-│   ├── __init__.py
-│   └── sandbox.py         # 沙箱执行器
-├── utils/                  # 工具函数
-│   ├── __init__.py
-│   ├── config.py          # 配置管理
-│   └── logger.py          # 日志输出
-├── examples/               # 示例代码
-│   └── simple_task.py
-├── main.py                 # 命令行入口
-├── demo.py                 # 演示脚本
-├── requirements.txt        # 依赖
-├── env.example            # 环境变量示例
-└── README.md              # 本文档
+
+User Input
+↓
+Write Buffer → Read Buffer → Streaming Output
+
 ```
 
-## 🚀 快速开始
+✔ 非阻塞写入  
+✔ 实时前端推流  
+✔ 极低延迟体验
 
-### 1. 安装依赖
+✨ 前端输出几乎达到 LLM 思考的实时感。
+
+---
+
+### ⚙️ Chat  /  Agent  双模式
+
+- **Chat Mode** – 轻量级对话式交互  
+- **Agent Mode** – 多步规划 & 工具链执行
+
+统一体验，两种心智路径：
+
+```
+
+User Query
+├─ 👉 Chat  → 文本对话即时输出
+└─ 👉 Agent → Planner → Executor → Tools → Runtime
+
+```
+
+---
+
+### 🖥️ 新增前端页面
+
+可视化体验：
+
+✔ 实时流式输出  
+✔ 任务执行状态  
+✔ Agent 步骤可视化  
+✔ 快捷模式切换
+
+最终目标：**让 Agent 思考过程“看得见”。**
+
+---
+
+## 🛠️ 项目架构
+
+```
+
+├── agent/               # Agent 核心组件
+│   ├── router.py        # 难度路由层
+│   ├── planner.py       # 规划器
+│   ├── executor.py      # 执行器
+│   └── analyzer.py      # 错误分析 & 自动修复
+├── llm/                 # 多模型适配封装
+├── tools/               # 内置工具集
+├── executor/            # 沙箱执行环境
+├── frontend/            # 前端 UI
+├── utils/
+└── main.py              # 启动入口
+
+````
+
+---
+
+## 🚀 快速开始（10 秒启动）
 
 ```bash
-# 克隆项目
-git clone <repo_url>
-cd fakeclaude_code
-
-# 安装依赖
+git clone https://github.com/laplace-pym/Codexis.git
+cd Codexis
 pip install -r requirements.txt
-```
-
-### 2. 配置环境变量
-
-```bash
-# 复制示例配置
 cp env.example .env
-
-# 编辑 .env 文件，填入你的 API Key
-```
-
-**.env 文件内容:**
-
-```bash
-# DeepSeek API (默认)
-DEEPSEEK_API_KEY=your_deepseek_api_key
-DEEPSEEK_BASE_URL=https://api.deepseek.com
-DEEPSEEK_MODEL=deepseek-chat
-
-# OpenAI API (可选)
-OPENAI_API_KEY=your_openai_api_key
-OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-4o
-
-# Anthropic API (可选)
-ANTHROPIC_API_KEY=your_anthropic_api_key
-ANTHROPIC_BASE_URL=https://api.anthropic.com
-ANTHROPIC_MODEL=claude-sonnet-4-20250514
-
-# 默认提供商
-DEFAULT_LLM_PROVIDER=deepseek
-```
-
-### 3. 运行
-
-```bash
-# 交互模式
 python main.py
+````
 
-# 单任务模式
-python main.py --task "创建一个计算斐波那契数列的 Python 脚本"
+---
 
-# 指定 LLM 提供商
-python main.py --provider openai --task "..."
+## 🧪 模式说明
 
-# 查看帮助
-python main.py --help
-```
-
-## 📖 使用示例
-
-### 基本用法
-
-```python
-from agent import CodingAgent
-
-# 创建 Agent（默认使用 DeepSeek）
-agent = CodingAgent()
-
-# 执行任务
-result = agent.run("创建一个 Python 函数，计算两个数的最大公约数")
-print(result)
-
-# 带自动修复的执行
-result = agent.run_with_auto_fix("创建一个 Web 爬虫获取网页标题")
-print(result)
-```
-
-### 指定 LLM 提供商
-
-```python
-# 使用 OpenAI
-agent = CodingAgent(provider="openai")
-
-# 使用 Anthropic
-agent = CodingAgent(provider="anthropic")
-```
-
-### 直接执行代码
-
-```python
-# 在沙箱中执行代码
-result = agent.execute_code("""
-def fibonacci(n):
-    if n <= 1:
-        return n
-    return fibonacci(n-1) + fibonacci(n-2)
-
-for i in range(10):
-    print(f"fib({i}) = {fibonacci(i)}")
-""")
-
-print(f"Output: {result.stdout}")
-print(f"Exit code: {result.exit_code}")
-```
-
-### 使用工具
-
-```python
-from tools import create_default_registry
-
-# 创建工具注册表
-registry = create_default_registry()
-
-# 列出可用工具
-print("Available tools:", registry.list_tools())
-
-# 执行工具
-result = registry.execute("read_file", path="./README.md")
-print(result.output)
-
-# grep 搜索
-result = registry.execute("grep", pattern="def.*\\(", path=".", file_pattern="*.py")
-print(result.output)
-
-# 分析代码结构
-result = registry.execute("analyze_code", path="./agent/coding_agent.py")
-print(result.output)
-
-# 生成测试
-result = registry.execute("generate_tests", path="./utils/config.py")
-print(result.output)
-```
-
-### 交互模式
-
-```python
-# 启动交互式会话
-agent.interactive()
-```
-
-交互模式命令：
-- `help` - 显示帮助
-- `status` - 显示当前状态
-- `history` - 显示执行历史
-- `clear` - 清除状态
-- `exit` / `quit` - 退出
-
-## 🔧 可用工具列表
-
-### 文件操作
-| 工具名 | 描述 |
-|--------|------|
-| `read_file` | 读取文件内容 |
-| `write_file` | 写入文件 |
-| `list_directory` | 列出目录内容 |
-| `search_files` | 按名称/内容搜索文件 |
-| `delete_file` | 删除文件 |
-
-### 代码执行
-| 工具名 | 描述 |
-|--------|------|
-| `execute_command` | 执行 Shell 命令 |
-| `execute_python` | 执行 Python 代码 |
-| `execute_in_sandbox` | 在沙箱中安全执行代码 |
-
-### 文档解析
-| 工具名 | 描述 |
-|--------|------|
-| `read_pdf` | 提取 PDF 文本 |
-| `read_docx` | 提取 Word 文档文本 |
-| `read_image` | OCR 图片文字识别 |
-
-### 代码搜索
-| 工具名 | 描述 |
-|--------|------|
-| `grep` | 正则表达式搜索 |
-| `find_symbol` | 查找函数/类/变量定义 |
-| `replace_in_files` | 批量搜索替换 |
-
-### 代码修改
-| 工具名 | 描述 |
-|--------|------|
-| `apply_patch` | 应用 unified diff 补丁 |
-| `edit_block` | 替换指定代码块 |
-| `insert_code` | 在指定行插入代码 |
-| `create_diff` | 生成 diff |
-
-### 代码分析
-| 工具名 | 描述 |
-|--------|------|
-| `analyze_code` | 分析代码结构 |
-| `generate_tests` | 生成测试用例 |
-| `summarize` | 生成文件摘要 |
-
-## 🔌 扩展工具
-
-创建自定义工具：
-
-```python
-from tools import BaseTool, ToolResult, ToolRegistry
-
-class MyCustomTool(BaseTool):
-    @property
-    def name(self) -> str:
-        return "my_custom_tool"
-    
-    @property
-    def description(self) -> str:
-        return "Description of what this tool does"
-    
-    @property
-    def parameters(self) -> dict:
-        return {
-            "type": "object",
-            "properties": {
-                "input": {
-                    "type": "string",
-                    "description": "Input value"
-                }
-            },
-            "required": ["input"]
-        }
-    
-    def execute(self, **kwargs) -> ToolResult:
-        input_val = kwargs.get("input")
-        # 执行逻辑
-        return ToolResult.success_result(f"Processed: {input_val}")
-
-# 注册工具
-registry = ToolRegistry()
-registry.register(MyCustomTool())
-```
-
-## 🔌 扩展 LLM 适配器
-
-添加新的 LLM 提供商：
-
-```python
-from llm import BaseLLM, LLMFactory
-
-class MyLLM(BaseLLM):
-    async def chat(self, messages, tools=None, **kwargs):
-        # 实现 API 调用
-        pass
-    
-    def chat_sync(self, messages, tools=None, **kwargs):
-        # 实现同步 API 调用
-        pass
-
-# 注册到工厂
-LLMFactory.register_provider("my_llm", MyLLM)
-
-# 使用
-agent = CodingAgent(provider="my_llm")
-```
-
-## 📊 Agent 执行流程
-
-```
-用户输入任务
-     │
-     ▼
-┌─────────────┐
-│   Planner   │ ──▶ 分析任务，创建执行计划
-└─────────────┘
-     │
-     ▼
-┌─────────────┐     ┌───────────┐
-│  Executor   │◀───▶│    LLM    │ ──▶ 生成代码/决策
-└─────────────┘     └───────────┘
-     │
-     ▼
-┌─────────────┐
-│    Tools    │ ──▶ 执行工具（文件操作、代码执行等）
-└─────────────┘
-     │
-     ▼
-┌─────────────┐
-│   Sandbox   │ ──▶ 安全执行代码
-└─────────────┘
-     │
-     ▼
-成功？ ──▶ Yes ──▶ 返回结果
-  │
-  No
-  │
-  ▼
-┌───────────────┐
-│ ErrorAnalyzer │ ──▶ 分析错误
-└───────────────┘
-     │
-     ▼
-┌─────────────┐
-│  AutoFixer  │ ──▶ 生成修复建议，返回 Executor
-└─────────────┘
-```
-
-## 🧪 运行测试
+### 💬 Chat 模式
 
 ```bash
-# 运行演示脚本
-python demo.py
-
-# 运行测试（如果有）
-pytest tests/
+python main.py --mode chat
 ```
 
-## ⚠️ 注意事项
+🔹 适合快速问题 / 轻量命令交互
 
-1. **API Key 安全**: 请勿将 API Key 提交到版本控制
-2. **代码执行**: 沙箱环境提供基本隔离，但执行不信任的代码仍需谨慎
-3. **费用控制**: LLM API 调用会产生费用，建议设置适当的 max_iterations
+---
 
-## 📝 License
+### 🤖 Agent 模式
 
-MIT License
+```bash
+python main.py --mode agent --task "自动重构项目配置系统"
+```
 
-## 🤝 贡献
+🔹 适合复杂任务自动化执行与修复
 
-欢迎提交 Issues 和 Pull Requests！
+---
+
+## 🧠 真实案例展示
+
+| 场景     | 输入                         | 结果            |
+| ------ | -------------------------- | ------------- |
+| 重构函数   | “替换所有 `.map` 为 `.flatMap`” | 自动应用并验证       |
+| Bug 修复 | “修复测试失败”                   | 自动分析 + 生成修补方案 |
+| 多文件任务  | “拆分大文件成模块”                 | 顺序执行 & PR 结果  |
+
+---
+
+## 📈 为什么选择 Codexis？
+
+✔ 工程级 Agent 支持
+✔ 可扩展的工具系统
+✔ 实时代码反馈 & 交互
+✔ 自动诊断与自我修复机制
+
+---
+
+## 🧠 路线图
+
+✔ 任务路由机制
+✔ h2A Streaming 引擎
+✔ Frontend 实时可视化
+➡ 多 Agent 协作
+➡ Plugin 生态扩展
+➡ Memory / 长上下文支持
+
+---
+
+## 🤝 参与贡献
+
+欢迎 ⭐Star / Fork / PR！
+
+1. 提交 issue 或 feature 请求
+2. 提交代码 / 文档 PR
+3. 交流最佳实践
+
+---
+
+## 📜 Licence
+
+MIT © [laplace-pym](https://github.com/laplace-pym)
+
+---
+
+<p align="center">
+  <em>构建未来的 AI Coding Assistant，从 Codexis 开始。</em>
+</p>
+```
+
+---
+
+## 📌 Tips（提高吸睛指数）
+
+✅ 在仓库根目录加一个 `assets/logo.png`
+✅ 可以有一个 `demo.gif` 展示前端流式效果
+✅ 把 README 上部放置一个短视频 / gif 更能抓人眼球
+✅ 配合 GitHub Action 自动部署前端预览链接
+
+---
+
+如果你要，我还可以：
+
+🎨 设计一套 **项目 logo + banner**
+🎥 写一段 **GIF 演示脚本**（录屏操作）
+📄 出一个 **技术白皮书版本文档（PDF）**
+
+要哪个我继续帮你推进！

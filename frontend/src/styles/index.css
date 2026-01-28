@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+body {
+  @apply bg-white text-slate-800 antialiased;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400;
+}
+
+/* Code block styling */
+pre {
+  @apply bg-slate-50 border border-slate-200 rounded-lg p-4 overflow-x-auto;
+}
+
+code {
+  @apply font-mono text-sm;
+}
+
+/* Custom animations */
+@keyframes typing {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
+.typing-indicator {
+  animation: typing 0.8s ease-in-out infinite alternate;
+}
+
+/* Markdown content styling */
+.prose code {
+  @apply bg-slate-100 px-1.5 py-0.5 rounded text-sm text-slate-800;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+
+.prose h1, .prose h2, .prose h3 {
+  @apply text-slate-900 font-semibold;
+}
+
+.prose a {
+  @apply text-blue-600 hover:text-blue-800;
+}
+
+.prose ul, .prose ol {
+  @apply pl-5;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-slate-300 pl-4 italic text-slate-600;
+}

@@ -263,7 +263,7 @@ class DeepSeekLLM(BaseLLM):
     ) -> LLMResponse:
         """Send async chat completion request to DeepSeek."""
         if self._client is None:
-            self._client = httpx.AsyncClient(timeout=120.0)
+            self._client = httpx.AsyncClient(timeout=300.0)
         
         url = f"{self.base_url.rstrip('/')}/chat/completions"
         body = self._build_request_body(messages, tools, temperature, max_tokens)
@@ -286,7 +286,7 @@ class DeepSeekLLM(BaseLLM):
     ) -> LLMResponse:
         """Send synchronous chat completion request to DeepSeek."""
         if self._sync_client is None:
-            self._sync_client = httpx.Client(timeout=120.0)
+            self._sync_client = httpx.Client(timeout=300.0)
         
         url = f"{self.base_url.rstrip('/')}/chat/completions"
         body = self._build_request_body(messages, tools, temperature, max_tokens)

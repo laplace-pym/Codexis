@@ -16,6 +16,7 @@ httpx>=0.26.0
 # Document Processing
 PyPDF2>=3.0.0
 python-docx>=1.1.0
+python-pptx>=0.6.21
 Pillow>=10.2.0
 pytesseract>=0.3.10
 
@@ -30,6 +31,12 @@ asyncio>=3.4.3
 # Testing
 pytest>=8.0.0
 pytest-asyncio>=0.23.0
+
+# Web Server
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+python-multipart>=0.0.6
+websockets>=11.0.0
 
 # Utilities
 pathspec>=0.12.0

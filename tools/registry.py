@@ -198,7 +198,7 @@ def create_default_registry() -> ToolRegistry:
         DeleteFileTool,
     )
     from .code_executor import ExecuteCodeTool, ExecutePythonTool, ExecuteInSandboxTool
-    from .doc_tools import ReadPDFTool, ReadDocxTool, ReadImageTool
+    from .doc_tools import ReadPDFTool, ReadDocxTool, ReadImageTool, ReadPPTTool
     from .search_tools import GrepTool, FindSymbolTool, ReplaceInFilesTool
     from .patch_tools import ApplyPatchTool, EditBlockTool, InsertCodeTool, CreateDiffTool
     from .analysis_tools import AnalyzeCodeTool, GenerateTestsTool, SummarizeTool
@@ -221,6 +221,7 @@ def create_default_registry() -> ToolRegistry:
     registry.register(ReadPDFTool())
     registry.register(ReadDocxTool())
     registry.register(ReadImageTool())
+    registry.register(ReadPPTTool())
     
     # Search tools (grep-like)
     registry.register(GrepTool())

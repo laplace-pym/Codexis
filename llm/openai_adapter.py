@@ -26,11 +26,39 @@ class OpenAILLM(BaseLLM):
         self._sync_client: Optional[httpx.Client] = None
     
     def _get_headers(self) -> dict:
-        """Get request headers."""
-        return {
+        """
+        Get request headers.
+        
+        This adapter is used both for the official OpenAI API and
+        OpenRouter's OpenAI‑compatible endpoint. OpenRouter requires
+        a standard `Authorization: Bearer <key>` header, plus it
+        *recommends* (and in some cases expects) `HTTP-Referer` and
+        `X-Title` headers for identification.
+        
+        We detect OpenRouter usage via the base_url and add those
+        headers automatically so that the same .env configuration:
+        
+            OPENAI_API_KEY=sk-or-...
+            OPENAI_BASE_URL=https://openrouter.ai/api/v1
+            OPENAI_MODEL=openai/gpt-5
+        
+        can work without any extra user code changes.
+        """
+        import os
+        
+        headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+        
+        # OpenRouter specific headers (harmless for normal OpenAI)
+        if "openrouter.ai" in (self.base_url or ""):
+            referer = os.getenv("OPENROUTER_SITE", "http://localhost")
+            title = os.getenv("OPENROUTER_TITLE", "Codexis")
+            headers["HTTP-Referer"] = referer
+            headers["X-Title"] = title
+        
+        return headers
     
     def _build_request_body(
         self,

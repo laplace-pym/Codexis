@@ -111,7 +111,7 @@ def main():
     logger = get_logger(log_level)
     
     # Print banner
-    logger.separator("🤖 FakeClaude Code")
+    logger.separator("🤖 Codexis!为您服务！pym真帅")
     logger.info(f"Provider: {args.provider or config.default_provider}")
     
     try:

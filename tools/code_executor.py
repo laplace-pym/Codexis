@@ -117,7 +117,7 @@ class ExecuteCodeTool(BaseTool):
 class ExecutePythonTool(BaseTool):
     """Tool for executing Python code."""
     
-    def __init__(self, timeout: int = 30, working_dir: Optional[str] = None):
+    def __init__(self, timeout: int = 120, working_dir: Optional[str] = None):
         self.timeout = timeout
         self.working_dir = working_dir
     
@@ -241,7 +241,7 @@ class ExecutePythonTool(BaseTool):
 class ExecuteInSandboxTool(BaseTool):
     """Tool for executing code in an isolated sandbox environment."""
     
-    def __init__(self, timeout: int = 30, sandbox_dir: Optional[str] = None):
+    def __init__(self, timeout: int = 120, sandbox_dir: Optional[str] = None):
         self.timeout = timeout
         self.sandbox_dir = sandbox_dir or tempfile.mkdtemp(prefix="sandbox_")
     
