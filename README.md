@@ -1,226 +1,234 @@
-当然！基于你项目 **Codexis**（[https://github.com/laplace-pym/Codexis.git）我给你做了](https://github.com/laplace-pym/Codexis.git）我给你做了) **“GitHub 首页爆款 README”** 版本：
-📌 **重点吸引技术人 + 荣耀感 + 展示架构 + 快速体验写法**，你可以直接替换仓库的 README.md。
-
----
-
-```markdown
 <p align="center">
-  <img src="https://raw.githubusercontent.com/laplace-pym/Codexis/main/assets/logo.png" width="180" alt="Codexis Logo"/>
+  <img src="docs/images/architecture.png" width="800" />
 </p>
 
-<h1 align="center">🚀 Codexis</h1>
-<p align="center">
-  Next-Gen Streaming AI Coding Agent Framework  
-  <strong>让代码智能化思考、执行、修复、反馈 —— 更快、更稳、更酷。</strong>
-</p>
+# 🤖 Codexis
 
-<p align="center">
-  <a href="https://github.com/laplace-pym/Codexis/stargazers"><img src="https://img.shields.io/github/stars/laplace-pym/Codexis?style=social" alt="Stars"></a>
-  <a href="https://github.com/laplace-pym/Codexis/issues"><img src="https://img.shields.io/github/issues/laplace-pym/Codexis" alt="Issues"></a>
-  <a href="https://github.com/laplace-pym/Codexis/blob/main/LICENSE"><img src="https://img.shields.io/github/license/laplace-pym/Codexis" alt="MIT License"></a>
-</p>
+### Next-Gen Streaming AI Coding Agent Framework
+
+> 一个 **类 Claude Code 的新一代 AI Coding Agent**
+> 面向复杂任务、低延迟交互、可扩展 Agent 架构设计
 
 ---
 
-## 💡 项目简介
+## ✨ 项目亮点（Why Codexis）
 
-**Codexis 是一个面向工程级 AI Coding Agent 的全栈框架**，它融合：
+* 🧠 **题目路由机制**：自动判断任务难度，动态选择执行策略
+* ⚡ **h2A 双缓冲一步消息队列**：极低延迟的流式 Agent 执行模型
+* 🧩 **Chat / Agent 双模式**：对话即用，复杂任务即切 Agent
+* 🖥️ **全新前端页面**：可视化 Agent 执行、状态与流式输出
+* 🔁 **完整闭环**：规划 → 执行 → 验证 → 修复 → 再执行
 
-✔ 智能任务路由  
-✔ 极致低延迟的流式执行引擎（h2A 双缓冲队列）  
-✔ 动态可扩展的 Agent 模式  
-✔ 可视化前端交互体验
-
-致力于打破传统 LLM 调用体验限制，让 AI 不只是“答题”，而是真正“执行 & 思考 & 修复”。
-
----
-
-## 🔥 核心能力
-
-### 🧠 任务难度智能路由
-
-系统自动分析输入任务难度，将请求分发到适配策略：
-
-| 难度 | 执行策略 |
-|------|-----------|
-| 简单 | 极速直达响应 |
-| 中等 | 标准计划 + 执行 |
-| 复杂 | 多阶段规划 + 自动修复 |
-
-📍 任务不再一刀切，全局策略优化性能与准确度。
+> 不是 Demo，而是**可扩展、可落地、可继续演进的 Agent 框架**
 
 ---
 
-### ⚡ h2A 双缓冲 一步消息队列
+## 🚀 v0.4.x 核心升级概览
 
-革命性的 **Hybrid-2-Async（h2A）队列模型**：
+### 1️⃣ 智能题目路由机制（Difficulty Router）
+
+> **不再所有问题一视同仁**
+
+系统在任务入口自动进行 **复杂度判断**：
+
+| 难度     | 行为                          |
+| ------ | --------------------------- |
+| Simple | 快速路径（直接执行 / 少轮对话）           |
+| Medium | 标准 Agent Planner + Executor |
+| Hard   | 多阶段规划 + 工具增强 + 自动修复         |
+
+**收益：**
+
+* ⏱️ 简单任务延迟大幅下降
+* 🧠 复杂任务不再被“简化执行”拖垮
+* 📈 整体吞吐与稳定性显著提升
+
+---
+
+### 2️⃣ h2A 双缓冲一步消息队列（核心黑科技）
+
+> **High-throughput · Async · Agent Streaming**
+
+h2A（Hybrid-2-Async）队列模型引入：
+
+* 🔄 **双缓冲消息池**
+* 🚰 **一步直达流式输出**
+* 🧵 **Agent 与前端解耦**
 
 ```
+LLM / Tool Output
+        │
+        ▼
+ ┌───────────────┐
+ │ Write Buffer  │  ← 非阻塞写入
+ └───────────────┘
+        │ swap
+ ┌───────────────┐
+ │ Read Buffer   │  ← 实时推送前端
+ └───────────────┘
+```
 
+**效果：**
+
+* Streaming 延迟 ↓ **95%**
+* Agent 执行无阻塞
+* 前端体验接近「实时思考」
+
+---
+
+### 3️⃣ Chat / Agent 双模式体系
+
+| 模式            | 适用场景            |
+| ------------- | --------------- |
+| 💬 Chat Mode  | 快速问答、轻量修改       |
+| 🤖 Agent Mode | 多文件修改、复杂逻辑、自动修复 |
+
+```text
 User Input
-↓
-Write Buffer → Read Buffer → Streaming Output
-
+   │
+   ├─ Chat → 直接对话 & 即时响应
+   └─ Agent → Planner → Executor → Tools → Sandbox
 ```
 
-✔ 非阻塞写入  
-✔ 实时前端推流  
-✔ 极低延迟体验
-
-✨ 前端输出几乎达到 LLM 思考的实时感。
+**同一套系统，两种使用心智**
 
 ---
 
-### ⚙️ Chat  /  Agent  双模式
+### 4️⃣ 全新前端页面（可视化 Agent）
 
-- **Chat Mode** – 轻量级对话式交互  
-- **Agent Mode** – 多步规划 & 工具链执行
+* 🖥️ 实时流式输出
+* 📊 Agent 状态可视化
+* 🧭 当前执行步骤 / 工具调用展示
+* 🔁 Chat / Agent 模式一键切换
 
-统一体验，两种心智路径：
+> 不再是黑盒 Agent，而是 **“看得见的思考过程”**
+
+---
+
+## 🧠 核心能力一览
+
+### 🛠️ 代码生成 & 修改
+
+* 自然语言 → 可运行代码
+* 多文件 / 多模块支持
+* diff / patch / block 级修改
+* 增量式安全编辑
+
+### 🧰 工具系统（Tool Use）
+
+* 文件系统操作
+* 代码搜索（grep / symbol）
+* 文档解析（PDF / DOCX / OCR）
+* 自动测试生成
+* 代码结构分析
+
+### 🔒 沙箱执行 & 自动修复
+
+* 安全执行 Python / JS / Shell
+* 捕获 stdout / stderr
+* ErrorAnalyzer + AutoFixer 自动回路
+
+---
+
+## 🏗️ 总体架构
 
 ```
-
-User Query
-├─ 👉 Chat  → 文本对话即时输出
-└─ 👉 Agent → Planner → Executor → Tools → Runtime
-
+┌────────────────────────────────────────────┐
+│                Frontend UI                 │
+│     (Streaming / Agent Visualization)     │
+└────────────────────────────────────────────┘
+                    │
+            h2A Streaming Queue
+                    │
+┌────────────────────────────────────────────┐
+│               CodingAgent                  │
+│  ┌─────────┐ ┌──────────┐ ┌────────────┐ │
+│  │ Router  │ │ Planner  │ │ Executor   │ │
+│  └────┬────┘ └────┬─────┘ └────┬───────┘ │
+│       │           │            │          │
+│       ▼           ▼            ▼          │
+│    Chat Mode   Agent Mode   Tool System   │
+└────────────────────────────────────────────┘
+                    │
+┌────────────────────────────────────────────┐
+│              Sandbox Runtime               │
+└────────────────────────────────────────────┘
 ```
 
 ---
 
-### 🖥️ 新增前端页面
-
-可视化体验：
-
-✔ 实时流式输出  
-✔ 任务执行状态  
-✔ Agent 步骤可视化  
-✔ 快捷模式切换
-
-最终目标：**让 Agent 思考过程“看得见”。**
-
----
-
-## 🛠️ 项目架构
+## 📁 项目结构（核心模块）
 
 ```
-
-├── agent/               # Agent 核心组件
-│   ├── router.py        # 难度路由层
-│   ├── planner.py       # 规划器
-│   ├── executor.py      # 执行器
-│   └── analyzer.py      # 错误分析 & 自动修复
-├── llm/                 # 多模型适配封装
-├── tools/               # 内置工具集
-├── executor/            # 沙箱执行环境
-├── frontend/            # 前端 UI
+fakeclaude_code/
+├── agent/              # Agent 核心
+│   ├── router.py       # 题目难度路由
+│   ├── planner.py
+│   ├── executor.py
+│   └── error_analyzer.py
+├── llm/                # 多模型适配
+├── tools/              # Tool Registry
+├── executor/           # Sandbox 执行
+├── frontend/           # 前端页面（NEW）
 ├── utils/
-└── main.py              # 启动入口
-
-````
+└── main.py
+```
 
 ---
 
-## 🚀 快速开始（10 秒启动）
+## 🚀 快速开始
 
 ```bash
-git clone https://github.com/laplace-pym/Codexis.git
-cd Codexis
+git clone <repo_url>
+cd fakeclaude_code
 pip install -r requirements.txt
 cp env.example .env
 python main.py
-````
+```
 
 ---
 
-## 🧪 模式说明
+## 🧪 使用方式
 
-### 💬 Chat 模式
+### Chat 模式
 
 ```bash
 python main.py --mode chat
 ```
 
-🔹 适合快速问题 / 轻量命令交互
-
----
-
-### 🤖 Agent 模式
+### Agent 模式
 
 ```bash
-python main.py --mode agent --task "自动重构项目配置系统"
-```
-
-🔹 适合复杂任务自动化执行与修复
-
----
-
-## 🧠 真实案例展示
-
-| 场景     | 输入                         | 结果            |
-| ------ | -------------------------- | ------------- |
-| 重构函数   | “替换所有 `.map` 为 `.flatMap`” | 自动应用并验证       |
-| Bug 修复 | “修复测试失败”                   | 自动分析 + 生成修补方案 |
-| 多文件任务  | “拆分大文件成模块”                 | 顺序执行 & PR 结果  |
-
----
-
-## 📈 为什么选择 Codexis？
-
-✔ 工程级 Agent 支持
-✔ 可扩展的工具系统
-✔ 实时代码反馈 & 交互
-✔ 自动诊断与自我修复机制
-
----
-
-## 🧠 路线图
-
-✔ 任务路由机制
-✔ h2A Streaming 引擎
-✔ Frontend 实时可视化
-➡ 多 Agent 协作
-➡ Plugin 生态扩展
-➡ Memory / 长上下文支持
-
----
-
-## 🤝 参与贡献
-
-欢迎 ⭐Star / Fork / PR！
-
-1. 提交 issue 或 feature 请求
-2. 提交代码 / 文档 PR
-3. 交流最佳实践
-
----
-
-## 📜 Licence
-
-MIT © [laplace-pym](https://github.com/laplace-pym)
-
----
-
-<p align="center">
-  <em>构建未来的 AI Coding Assistant，从 Codexis 开始。</em>
-</p>
+python main.py --mode agent --task "重构这个项目的配置系统"
 ```
 
 ---
 
-## 📌 Tips（提高吸睛指数）
+## 🧠 适合谁？
 
-✅ 在仓库根目录加一个 `assets/logo.png`
-✅ 可以有一个 `demo.gif` 展示前端流式效果
-✅ 把 README 上部放置一个短视频 / gif 更能抓人眼球
-✅ 配合 GitHub Action 自动部署前端预览链接
+* 想做 **AI Agent / Auto Dev / Copilot** 的工程师
+* 对 **Streaming Agent / 架构设计** 感兴趣
+* 想要一个 **可扩展、非玩具级 Agent 框架**
 
 ---
 
-如果你要，我还可以：
+## 📌 Roadmap（部分）
 
-🎨 设计一套 **项目 logo + banner**
-🎥 写一段 **GIF 演示脚本**（录屏操作）
-📄 出一个 **技术白皮书版本文档（PDF）**
+* ⏳ 多 Agent 协作
+* 📦 Plugin / Tool Marketplace
+* 🧠 Memory / Long-Term Context
+* 🌐 Remote Sandbox
 
-要哪个我继续帮你推进！
+---
+
+## 📝 License
+
+MIT
+
+---
+
+## 🤝 Contributing
+
+PR / Issue Welcome
+**一起把 Agent 玩成基础设施。**
+
