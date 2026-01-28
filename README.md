@@ -179,7 +179,7 @@ fakeclaude_code/
 ## 🚀 快速开始
 
 ```bash
-git clone <repo_url>
+git clone https://github.com/laplace-pym/Codexis.git
 cd fakeclaude_code
 pip install -r requirements.txt
 cp env.example .env
