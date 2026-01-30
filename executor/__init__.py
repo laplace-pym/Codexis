@@ -6,9 +6,16 @@ Provides safe, isolated code execution with:
 - Output capture (stdout, stderr, exit code)
 - Multi-language support (Python, JavaScript, Bash)
 - Automatic cleanup
+- Sandbox pooling for improved performance
 """
 
 from .sandbox import Sandbox, SandboxConfig, ExecutionResult, Language, execute_python_safely
+from .sandbox_pool import (
+    SandboxPool,
+    get_sandbox_pool,
+    execute_with_pool,
+    execute_with_pool_sync,
+)
 
 __all__ = [
     "Sandbox",
@@ -16,4 +23,9 @@ __all__ = [
     "ExecutionResult",
     "Language",
     "execute_python_safely",
+    # Sandbox pool
+    "SandboxPool",
+    "get_sandbox_pool",
+    "execute_with_pool",
+    "execute_with_pool_sync",
 ]

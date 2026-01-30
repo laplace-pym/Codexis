@@ -2,6 +2,7 @@
   <img src="docs/images/architecture.png" width="800" />
 </p>
 
+
 # 🤖 Codexis
 
 ### Next-Gen Streaming AI Coding Agent Framework
@@ -21,6 +22,15 @@
 
 > 不是 Demo，而是**可扩展、可落地、可继续演进的 Agent 框架**
 
+test图片如下
+<p align="center">
+  <img src="docs/images/image.png" width="800" />
+</p>
+
+每次生成代码，他会在前端页面展示，和用户有交互，用户可以选择是否在sandbox中进行实验
+<p align="center">
+  <img src="docs/images/test.png" width="800" />
+</p>
 ---
 
 ## 🚀 v0.4.x 核心升级概览

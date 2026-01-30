@@ -20,6 +20,14 @@ class Session:
     created_at: datetime = field(default_factory=datetime.utcnow)
     last_activity: datetime = field(default_factory=datetime.utcnow)
     document_ids: list[str] = field(default_factory=list)
+    # Interactive mode support
+    action_queue: Optional[asyncio.Queue] = field(default=None)
+    execution_mode: Literal["auto", "interactive"] = field(default="auto")
+
+    def __post_init__(self):
+        """Initialize the action queue."""
+        if self.action_queue is None:
+            self.action_queue = asyncio.Queue()
 
     def touch(self) -> None:
         """Update last activity timestamp."""
@@ -28,6 +36,15 @@ class Session:
     def is_expired(self, timeout_minutes: int = 60) -> bool:
         """Check if session has expired."""
         return datetime.utcnow() - self.last_activity > timedelta(minutes=timeout_minutes)
+
+    def set_execution_mode(self, mode: Literal["auto", "interactive"]) -> None:
+        """Set the execution mode for this session."""
+        self.execution_mode = mode
+
+    async def send_user_action(self, action: dict) -> None:
+        """Send a user action to the action queue."""
+        if self.action_queue:
+            await self.action_queue.put(action)
 
 
 class SessionManager:
@@ -204,6 +221,7 @@ class ChatService:
         mode: Literal["chat", "agent"] = "agent",
         session_id: Optional[str] = None,
         context: Optional[str] = None,
+        execution_mode: Literal["auto", "interactive"] = "auto",
     ) -> AsyncIterator[dict]:
         """
         Stream a response.
@@ -213,19 +231,31 @@ class ChatService:
             mode: Operating mode
             session_id: Session ID
             context: Optional context
+            execution_mode: "auto" for automatic execution, "interactive" for user confirmation
 
         Yields:
             Event dictionaries
         """
         session = self.sessions.get_or_create_session(session_id, mode)
+        session.set_execution_mode(execution_mode)
 
         # Yield session info first
         yield {"type": "session", "session_id": session.id}
 
-        # Stream the response
-        async for event in session.agent.process_message_stream(
-            message=message,
-            context=context,
-            mode=mode,
-        ):
-            yield event
+        # Stream the response with appropriate mode
+        if execution_mode == "interactive" and mode == "agent":
+            # Use interactive streaming with code preview
+            async for event in session.agent.process_message_stream_interactive(
+                message=message,
+                context=context,
+                action_queue=session.action_queue,
+            ):
+                yield event
+        else:
+            # Standard streaming
+            async for event in session.agent.process_message_stream(
+                message=message,
+                context=context,
+                mode=mode,
+            ):
+                yield event

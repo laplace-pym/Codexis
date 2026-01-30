@@ -1,0 +1,43 @@
+import { setCliSessionId } from "../../agents/cli-session.js";
+import { lookupContextTokens } from "../../agents/context.js";
+import { DEFAULT_CONTEXT_TOKENS } from "../../agents/defaults.js";
+import { isCliProvider } from "../../agents/model-selection.js";
+import { hasNonzeroUsage } from "../../agents/usage.js";
+import { updateSessionStore } from "../../config/sessions.js";
+export async function updateSessionStoreAfterAgentRun(params) {
+    const { cfg, sessionId, sessionKey, storePath, sessionStore, defaultProvider, defaultModel, fallbackProvider, fallbackModel, result, } = params;
+    const usage = result.meta.agentMeta?.usage;
+    const modelUsed = result.meta.agentMeta?.model ?? fallbackModel ?? defaultModel;
+    const providerUsed = result.meta.agentMeta?.provider ?? fallbackProvider ?? defaultProvider;
+    const contextTokens = params.contextTokensOverride ?? lookupContextTokens(modelUsed) ?? DEFAULT_CONTEXT_TOKENS;
+    const entry = sessionStore[sessionKey] ?? {
+        sessionId,
+        updatedAt: Date.now(),
+    };
+    const next = {
+        ...entry,
+        sessionId,
+        updatedAt: Date.now(),
+        modelProvider: providerUsed,
+        model: modelUsed,
+        contextTokens,
+    };
+    if (isCliProvider(providerUsed, cfg)) {
+        const cliSessionId = result.meta.agentMeta?.sessionId?.trim();
+        if (cliSessionId)
+            setCliSessionId(next, providerUsed, cliSessionId);
+    }
+    next.abortedLastRun = result.meta.aborted ?? false;
+    if (hasNonzeroUsage(usage)) {
+        const input = usage.input ?? 0;
+        const output = usage.output ?? 0;
+        const promptTokens = input + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
+        next.inputTokens = input;
+        next.outputTokens = output;
+        next.totalTokens = promptTokens > 0 ? promptTokens : (usage.total ?? input);
+    }
+    sessionStore[sessionKey] = next;
+    await updateSessionStore(storePath, (store) => {
+        store[sessionKey] = next;
+    });
+}

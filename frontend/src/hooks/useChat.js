@@ -13,6 +13,9 @@ export function useChat() {
   const [error, setError] = useState(null)
   const [documents, setDocuments] = useState([])
   const [toolCalls, setToolCalls] = useState([])
+  // Interactive mode state
+  const [executionMode, setExecutionMode] = useState('auto') // 'auto' or 'interactive'
+  const [codePreview, setCodePreview] = useState(null)
 
   const currentResponseRef = useRef('')
   const ws = useWebSocket(sessionId || 'new')
@@ -81,6 +84,25 @@ export function useChat() {
     }])
   })
 
+  // Handle code_preview event for interactive mode
+  ws.onEvent('code_preview', (data) => {
+    if (executionMode === 'interactive') {
+      setCodePreview({
+        code: data.content,
+        filePath: data.metadata?.file_path,
+        language: data.metadata?.language || 'python',
+        requestId: data.metadata?.request_id,
+      })
+    } else {
+      // Auto mode - send execute action immediately
+      ws.sendJson({
+        type: 'user_action',
+        action: 'execute',
+        request_id: data.metadata?.request_id,
+      })
+    }
+  })
+
   ws.onEvent('content', (data) => {
     currentResponseRef.current += data.content
     setMessages(prev => {
@@ -143,8 +165,8 @@ export function useChat() {
 
     // Send via WebSocket
     const documentIds = documents.map(d => d.id)
-    ws.sendMessage(content.trim(), mode, documentIds)
-  }, [mode, documents, ws])
+    ws.sendMessage(content.trim(), mode, documentIds, executionMode)
+  }, [mode, documents, ws, executionMode])
 
   // Send message via REST API (non-streaming)
   const sendMessageRest = useCallback(async (content) => {
@@ -216,6 +238,24 @@ export function useChat() {
     setDocuments(prev => prev.filter(d => d.id !== docId))
   }, [])
 
+  // Send user action for interactive mode code preview
+  const sendUserAction = useCallback((action, modifiedCode = null) => {
+    if (!codePreview) return
+
+    ws.sendJson({
+      type: 'user_action',
+      action: action,
+      code: modifiedCode,
+      request_id: codePreview.requestId,
+    })
+    setCodePreview(null)
+  }, [codePreview, ws])
+
+  // Dismiss code preview (close without action)
+  const dismissCodePreview = useCallback(() => {
+    setCodePreview(null)
+  }, [])
+
   return {
     messages,
     mode,
@@ -232,6 +272,12 @@ export function useChat() {
     clearMessages,
     addDocument,
     removeDocument,
+    // Interactive mode
+    executionMode,
+    setExecutionMode,
+    codePreview,
+    sendUserAction,
+    dismissCodePreview,
   }
 }
 

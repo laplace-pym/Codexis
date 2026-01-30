@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Trash2, PanelRightOpen, PanelRightClose, Wifi, WifiOff, FileUp } from 'lucide-react'
+import { Trash2, PanelRightOpen, PanelRightClose, Wifi, WifiOff, FileUp, Zap, MousePointer } from 'lucide-react'
 import { ModeSelector } from './ModeSelector'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 import { DocumentUpload } from './DocumentUpload'
 import { DocumentList } from './DocumentList'
 import { ToolPanel } from './ToolPanel'
+import { CodePreview } from './CodePreview'
 import { useChat } from '../hooks/useChat'
 
 /**
@@ -26,6 +27,12 @@ export function ChatContainer() {
     clearMessages,
     addDocument,
     removeDocument,
+    // Interactive mode
+    executionMode,
+    setExecutionMode,
+    codePreview,
+    sendUserAction,
+    dismissCodePreview,
   } = useChat()
 
   const [showToolPanel, setShowToolPanel] = useState(true)
@@ -48,6 +55,38 @@ export function ChatContainer() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Execution mode toggle (agent mode only) */}
+              {mode === 'agent' && (
+                <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setExecutionMode('auto')}
+                    className={`
+                      px-2 py-1 text-xs font-medium rounded flex items-center gap-1 transition-colors
+                      ${executionMode === 'auto'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'}
+                    `}
+                    title="Auto mode - execute code automatically"
+                  >
+                    <Zap size={12} />
+                    Auto
+                  </button>
+                  <button
+                    onClick={() => setExecutionMode('interactive')}
+                    className={`
+                      px-2 py-1 text-xs font-medium rounded flex items-center gap-1 transition-colors
+                      ${executionMode === 'interactive'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'}
+                    `}
+                    title="Interactive mode - review code before execution"
+                  >
+                    <MousePointer size={12} />
+                    Interactive
+                  </button>
+                </div>
+              )}
+
               {/* Connection status */}
               <div className={`flex items-center gap-1 text-sm ${isConnected ? 'text-green-600' : 'text-slate-400'}`}>
                 {isConnected ? <Wifi size={16} /> : <WifiOff size={16} />}
@@ -142,6 +181,20 @@ export function ChatContainer() {
         <ToolPanel
           toolCalls={toolCalls}
           isVisible={showToolPanel}
+        />
+      )}
+
+      {/* Code preview modal (interactive mode) */}
+      {codePreview && (
+        <CodePreview
+          code={codePreview.code}
+          language={codePreview.language}
+          filePath={codePreview.filePath}
+          requestId={codePreview.requestId}
+          onExecute={() => sendUserAction('execute')}
+          onSkip={() => sendUserAction('skip')}
+          onModify={(modifiedCode) => sendUserAction('modify', modifiedCode)}
+          onClose={dismissCodePreview}
         />
       )}
     </div>

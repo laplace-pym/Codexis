@@ -575,6 +575,114 @@ class CodingAgent:
             executor.shutdown(wait=False)
             yield {"type": "complete", "content": final_content}
 
+    async def process_message_stream_interactive(
+        self,
+        message: str,
+        context: Optional[str] = None,
+        action_queue: Optional[asyncio.Queue] = None,
+    ) -> AsyncIterator[dict]:
+        """
+        Stream a response with interactive code preview mode.
+
+        In this mode, code_preview events are sent when files are written,
+        allowing the frontend to display the code to the user.
+
+        Note: Currently this uses the same execution as auto mode but sends
+        code_preview events. Full interactive blocking will be implemented later.
+
+        Args:
+            message: User message
+            context: Optional context
+            action_queue: Queue for receiving user actions (reserved for future use)
+
+        Yields:
+            Event dictionaries including code_preview events
+        """
+        yield {"type": "thinking", "content": "Analyzing task..."}
+
+        # Create a thread-safe queue for events
+        import queue
+        event_queue = queue.Queue()
+
+        def emit_event(event: dict):
+            """Callback to put events in the queue (thread-safe)."""
+            # Intercept write_file tool calls to send code_preview
+            if event.get("type") == "tool_call":
+                metadata = event.get("metadata", {})
+                if metadata.get("tool") == "write_file":
+                    args = metadata.get("args", {})
+                    code_content = args.get("content", "")
+                    file_path = args.get("path", "unknown")
+
+                    # Determine language from file extension
+                    language = "python"
+                    if file_path.endswith(".js"):
+                        language = "javascript"
+                    elif file_path.endswith(".ts"):
+                        language = "typescript"
+                    elif file_path.endswith(".sh"):
+                        language = "bash"
+
+                    # Send code_preview event
+                    event_queue.put({
+                        "type": "code_preview",
+                        "content": code_content,
+                        "metadata": {
+                            "file_path": file_path,
+                            "language": language,
+                        }
+                    })
+
+            event_queue.put(event)
+
+        # Run the task in a thread with callback
+        import concurrent.futures
+        executor_pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        future = executor_pool.submit(
+            self.executor.execute_with_callback,
+            task=message,
+            callback=emit_event,
+            context=context,
+        )
+
+        # Stream events from the queue while task is running
+        while True:
+            try:
+                # Check for events with small timeout
+                try:
+                    event = event_queue.get(timeout=0.1)
+                    yield event
+                except queue.Empty:
+                    pass
+
+                # Check if task is done
+                if future.done():
+                    # Drain remaining events
+                    while True:
+                        try:
+                            event = event_queue.get_nowait()
+                            yield event
+                        except queue.Empty:
+                            break
+                    break
+
+                # Yield control to allow other async tasks
+                await asyncio.sleep(0.05)
+
+            except Exception as e:
+                yield {"type": "error", "content": str(e)}
+                break
+
+        # Get final result
+        try:
+            state = future.result(timeout=1)
+            final_content = state.final_result if state and state.final_result else "Task completed"
+        except Exception as e:
+            final_content = f"Task error: {str(e)}"
+
+        executor_pool.shutdown(wait=False)
+        yield {"type": "complete", "content": final_content}
+
     def _log_plan(self, plan: ExecutionPlan):
         """Log an execution plan."""
         self.logger.plan([s.description for s in plan.steps])

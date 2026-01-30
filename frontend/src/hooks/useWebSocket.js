@@ -74,7 +74,7 @@ export function useWebSocket(sessionId = 'new') {
   }, [])
 
   // Send a message
-  const sendMessage = useCallback((message, mode = 'agent', documents = []) => {
+  const sendMessage = useCallback((message, mode = 'agent', documents = [], executionMode = 'auto') => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) {
       setError('WebSocket not connected')
       return false
@@ -87,8 +87,20 @@ export function useWebSocket(sessionId = 'new') {
       message,
       mode,
       documents,
+      execution_mode: executionMode,
     }))
 
+    return true
+  }, [])
+
+  // Send raw JSON data (for user actions, etc.)
+  const sendJson = useCallback((data) => {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) {
+      setError('WebSocket not connected')
+      return false
+    }
+
+    wsRef.current.send(JSON.stringify(data))
     return true
   }, [])
 
@@ -111,6 +123,7 @@ export function useWebSocket(sessionId = 'new') {
     connect,
     disconnect,
     sendMessage,
+    sendJson,
     onEvent,
   }
 }

@@ -74,11 +74,14 @@ async def websocket_chat(websocket: WebSocket, session_id: str):
 
     Message format:
     - Client sends: {"message": "...", "mode": "chat|agent", "documents": ["id1", ...]}
+    - Client sends: {"type": "user_action", "action": "execute|skip|modify", "code": "...", "request_id": "..."}
+    - Client sends: {"type": "set_execution_mode", "execution_mode": "auto|interactive"}
     - Server sends events:
       - {"type": "session", "session_id": "..."}
       - {"type": "thinking", "content": "..."}
       - {"type": "tool_call", "content": "...", "metadata": {...}}
       - {"type": "tool_result", "content": "...", "metadata": {...}}
+      - {"type": "code_preview", "content": "...", "metadata": {"file_path": "...", "language": "...", "request_id": "..."}}
       - {"type": "content", "content": "..."}
       - {"type": "complete", "content": "..."}
       - {"type": "error", "content": "..."}
@@ -89,6 +92,9 @@ async def websocket_chat(websocket: WebSocket, session_id: str):
         await websocket.send_json({"type": "error", "content": "Chat service not initialized"})
         await websocket.close()
         return
+
+    # Get or create session for action handling
+    current_session = None
 
     try:
         while True:
@@ -101,9 +107,34 @@ async def websocket_chat(websocket: WebSocket, session_id: str):
                 await websocket.send_json({"type": "error", "content": "Invalid JSON"})
                 continue
 
+            msg_type = request.get("type", "message")
+
+            # Handle user action (response to code_preview)
+            if msg_type == "user_action":
+                if current_session:
+                    await current_session.send_user_action({
+                        "action": request.get("action", "execute"),
+                        "code": request.get("code"),
+                        "request_id": request.get("request_id"),
+                    })
+                continue
+
+            # Handle execution mode change
+            if msg_type == "set_execution_mode":
+                execution_mode = request.get("execution_mode", "auto")
+                if current_session:
+                    current_session.set_execution_mode(execution_mode)
+                await websocket.send_json({
+                    "type": "status",
+                    "content": f"Execution mode set to: {execution_mode}"
+                })
+                continue
+
+            # Regular message handling
             message = request.get("message", "")
             mode = request.get("mode", "agent")
             documents = request.get("documents", [])
+            execution_mode = request.get("execution_mode", "auto")
 
             if not message:
                 await websocket.send_json({"type": "error", "content": "Message required"})
@@ -121,7 +152,13 @@ async def websocket_chat(websocket: WebSocket, session_id: str):
                     mode=mode,
                     session_id=session_id if session_id != "new" else None,
                     context=context,
+                    execution_mode=execution_mode,
                 ):
+                    # Update current session reference on session event
+                    if event.get("type") == "session":
+                        current_session = _chat_service.sessions.get_session(event.get("session_id"))
+                        if current_session:
+                            current_session.set_execution_mode(execution_mode)
                     await websocket.send_json(event)
             except Exception as e:
                 await websocket.send_json({"type": "error", "content": str(e)})
