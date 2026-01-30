@@ -8,6 +8,11 @@ __pycache__/
 .venv/
 venv/
 
+# node
+node_modules/
+dist/
+build/
+
 # logs
 *.log
 
