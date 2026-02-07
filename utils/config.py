@@ -29,6 +29,9 @@ class AgentConfig:
     sandbox_enabled: bool = True
     workspace_dir: str = "./workspace"
     log_level: str = "INFO"
+    # Context compression (AU2 algorithm)
+    compression_threshold: float = 0.92
+    max_context_tokens: int = 0  # 0 = auto-detect from provider
 
 
 @dataclass
@@ -91,6 +94,8 @@ class Config:
                 sandbox_enabled=os.getenv("SANDBOX_ENABLED", "true").lower() == "true",
                 workspace_dir=os.getenv("WORKSPACE_DIR", "./workspace"),
                 log_level=os.getenv("LOG_LEVEL", "INFO"),
+                compression_threshold=float(os.getenv("COMPRESSION_THRESHOLD", "0.92")),
+                max_context_tokens=int(os.getenv("MAX_CONTEXT_TOKENS", "0")),
             ),
         )
         

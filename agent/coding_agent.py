@@ -93,12 +93,18 @@ class CodingAgent:
         # Initialize tools
         self.tools = tool_registry or create_default_registry()
         
+        # Resolve provider name for context window detection
+        self._provider = provider or self.config.default_provider
+
         # Initialize components
         self.planner = Planner(self.llm)
         self.executor = AgentExecutor(
             llm=self.llm,
             tool_registry=self.tools,
             max_iterations=max_iterations,
+            provider=self._provider,
+            max_context_tokens=self.config.agent.max_context_tokens or None,
+            compression_threshold=self.config.agent.compression_threshold,
         )
         
         # Settings

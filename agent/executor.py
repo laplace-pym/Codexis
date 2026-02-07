@@ -12,6 +12,7 @@ from tools.registry import ToolRegistry
 from tools.base import ToolResult
 from utils.logger import get_logger
 from .base import AgentState, AgentStep, StepType, StepStatus
+from .context_compressor import ContextCompressor
 
 
 @dataclass
@@ -75,12 +76,23 @@ class AgentExecutor:
         tool_registry: ToolRegistry,
         max_iterations: int = 10,
         verbose: bool = True,
+        provider: str | None = None,
+        max_context_tokens: int | None = None,
+        compression_threshold: float = 0.92,
     ):
         self.llm = llm
         self.tools = tool_registry
         self.max_iterations = max_iterations
         self.verbose = verbose
         self.logger = get_logger()
+
+        # Initialize context compressor (AU2 algorithm)
+        self.compressor = ContextCompressor(
+            llm=llm,
+            provider=provider,
+            max_context_tokens=max_context_tokens,
+            threshold=compression_threshold,
+        )
     
     def execute(
         self,
@@ -115,14 +127,20 @@ class AgentExecutor:
             try:
                 if self.verbose:
                     self.logger.info(f"Iteration {state.iteration}/{self.max_iterations}...")
-                
+
+                # AU2: Check if context compression is needed
+                messages = self.compressor.maybe_compress(messages)
+
                 # Get LLM response
                 response = self.llm.chat_sync(
                     messages=messages,
                     tools=tool_definitions,
                     temperature=0.7,
                 )
-                
+
+                # AU2: Update token usage tracking
+                self.compressor.update_usage(response.usage)
+
                 # Record thinking
                 if response.content:
                     state.history.add_think(response.content)
@@ -462,14 +480,20 @@ class AgentExecutor:
                 
                 if self.verbose:
                     self.logger.info(f"Iteration {state.iteration}/{self.max_iterations}...")
-                
+
+                # AU2: Check if context compression is needed
+                messages = self.compressor.maybe_compress(messages)
+
                 # Get LLM response
                 response = self.llm.chat_sync(
                     messages=messages,
                     tools=tool_definitions,
                     temperature=0.7,
                 )
-                
+
+                # AU2: Update token usage tracking
+                self.compressor.update_usage(response.usage)
+
                 # Record and emit thinking
                 if response.content:
                     state.history.add_think(response.content)
@@ -677,12 +701,18 @@ class AgentExecutor:
                 if self.verbose:
                     self.logger.info(f"Iteration {state.iteration}/{self.max_iterations}...")
 
+                # AU2: Check if context compression is needed
+                messages = self.compressor.maybe_compress(messages)
+
                 # Get LLM response
                 response = self.llm.chat_sync(
                     messages=messages,
                     tools=tool_definitions,
                     temperature=0.7,
                 )
+
+                # AU2: Update token usage tracking
+                self.compressor.update_usage(response.usage)
 
                 # Record and emit thinking
                 if response.content:

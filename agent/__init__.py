@@ -17,6 +17,7 @@ from .error_analyzer import ErrorAnalyzer, ErrorAnalysis, ErrorType, AutoFixer
 from .task_analyzer import TaskAnalyzer, TaskComplexity
 from .chat_mode import ChatMode, ChatHistory
 from .coding_agent import AgentMode
+from .context_compressor import ContextCompressor, CompressionMetrics
 from .team import (
     Team,
     TeamManager,
@@ -59,6 +60,9 @@ __all__ = [
     "ChatMode",
     "ChatHistory",
     "AgentMode",
+    # Context Compression
+    "ContextCompressor",
+    "CompressionMetrics",
     # Team
     "Team",
     "TeamManager",
