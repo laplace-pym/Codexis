@@ -19,6 +19,7 @@
 * 🧩 **Chat / Agent 双模式**：对话即用，复杂任务即切 Agent
 * 🖥️ **全新前端页面**：可视化 Agent 执行、状态与流式输出
 * 🔁 **完整闭环**：规划 → 执行 → 验证 → 修复 → 再执行
+* 👥 **Agent Teams**：多 Agent 协作，Leader 分解任务、Members 并行执行
 
 > 不是 Demo，而是**可扩展、可落地、可继续演进的 Agent 框架**
 
@@ -34,7 +35,7 @@ test图片如下
 
 ---
 
-## 🚀 v0.4.x 核心升级概览
+## 🚀 v0.5.x 核心升级概览
 
 ### 1️⃣ 智能题目路由机制（Difficulty Router）
 
@@ -105,7 +106,71 @@ User Input
 
 ---
 
-### 4️⃣ 全新前端页面（可视化 Agent）
+### 4️⃣ Agent Teams 多智能体协作（NEW）
+
+> **一个 Agent 解决不了的，就用一个团队**
+
+Agent Teams 引入多 Agent 协作模式：TeamLeader 使用 LLM 自动将复杂任务分解为子任务，分配给不同角色的 Agent 并行执行。
+
+```
+User Task: "Build a REST API with tests"
+                    │
+                    ▼
+            TeamLeader.decompose()
+                    │
+    ┌───────────────┼───────────────┐
+    ▼               ▼               ▼
+ architect       developer        tester
+ (设计 API)     (实现代码)       (编写测试)
+    │               │               │
+    ▼               ▼               ▼
+ CodingAgent    CodingAgent    CodingAgent
+ (Thread 1)     (Thread 2)     (Thread 3)
+    │               │               │
+    └───────┬───────┘               │
+            ▼                       ▼
+      MessageBus (线程安全消息通信)
+            │
+            ▼
+      TeamProgress (结果汇总)
+```
+
+**核心特性：**
+
+| 特性 | 说明 |
+|------|------|
+| LLM 任务分解 | TeamLeader 自动拆分任务、分配角色 |
+| 依赖感知调度 | 支持任务间依赖，按序解锁执行 |
+| 并行执行 | 每个 Member 独立线程运行 CodingAgent |
+| 线程安全通信 | MessageBus 支持点对点和广播消息 |
+| 死锁检测 | 自动检测并处理不可推进的任务 |
+| 进度追踪 | TeamProgress 实时汇报完成率 |
+
+**使用方式：**
+
+```bash
+# CLI 团队模式
+python main.py --team --task "创建一个带单元测试的计算器模块"
+
+# Web API
+POST /api/team/create  {"task": "...", "members": [...]}
+GET  /api/team/{id}/status
+```
+
+```python
+# Python API
+from agent.team import TeamManager
+
+manager = TeamManager()
+team = manager.create_default_team(provider="deepseek")
+progress = team.execute("Build a REST API with authentication and tests")
+
+print(f"Completed: {progress.completed_tasks}/{progress.total_tasks}")
+```
+
+---
+
+### 5️⃣ 全新前端页面（可视化 Agent）
 
 * 🖥️ 实时流式输出
 * 📊 Agent 状态可视化
@@ -171,18 +236,28 @@ User Input
 ## 📁 项目结构（核心模块）
 
 ```
-fakeclaude_code/
-├── agent/              # Agent 核心
-│   ├── router.py       # 题目难度路由
-│   ├── planner.py
-│   ├── executor.py
-│   └── error_analyzer.py
-├── llm/                # 多模型适配
-├── tools/              # Tool Registry
-├── executor/           # Sandbox 执行
-├── frontend/           # 前端页面（NEW）
-├── utils/
-└── main.py
+codexis/
+├── agent/                  # Agent 核心
+│   ├── coding_agent.py     # 主 Agent 编排器
+│   ├── executor.py         # LLM + Tool 执行循环
+│   ├── planner.py          # 任务规划
+│   ├── task_analyzer.py    # 题目难度路由
+│   ├── error_analyzer.py   # 错误分析 + 自动修复
+│   ├── chat_mode.py        # Chat 模式
+│   └── team/               # Agent Teams（NEW）
+│       ├── models.py       # 数据模型（TeamTask, TeamMessage 等）
+│       ├── message_bus.py  # 线程安全消息总线
+│       ├── member.py       # TeamMember（CodingAgent 封装）
+│       ├── leader.py       # TeamLeader（LLM 任务分解）
+│       ├── team.py         # Team 编排器（依赖调度）
+│       └── manager.py      # TeamManager 工厂
+├── llm/                    # 多模型适配（DeepSeek / OpenAI / Anthropic）
+├── tools/                  # Tool Registry（18+ 工具）
+├── executor/               # Sandbox 执行
+├── web/                    # FastAPI 后端 + Team API
+├── frontend/               # React 前端页面
+├── utils/                  # 配置 / 日志
+└── main.py                 # CLI 入口（支持 --team）
 ```
 
 ---
@@ -210,7 +285,13 @@ python main.py --mode chat
 ### Agent 模式
 
 ```bash
-python main.py --mode agent --task "重构这个项目的配置系统"
+python main.py --task "重构这个项目的配置系统"
+```
+
+### Team 模式（多 Agent 协作）
+
+```bash
+python main.py --team --task "创建一个完整的 REST API 项目，包含路由、数据模型和单元测试"
 ```
 
 ---
@@ -225,7 +306,7 @@ python main.py --mode agent --task "重构这个项目的配置系统"
 
 ## 📌 Roadmap（部分）
 
-* ⏳ 多 Agent 协作
+* ✅ ~~多 Agent 协作~~ → **Agent Teams 已实现！**
 * 📦 Plugin / Tool Marketplace
 * 🧠 Memory / Long-Term Context
 * 🌐 Remote Sandbox

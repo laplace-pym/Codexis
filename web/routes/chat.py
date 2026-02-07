@@ -7,7 +7,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from pydantic import BaseModel, Field
 import json
 
-from ..services import ChatService, DocumentService
+from ..services import ChatService, DocumentService, TeamService
 
 
 router = APIRouter(prefix="/api", tags=["chat"])
@@ -15,13 +15,19 @@ router = APIRouter(prefix="/api", tags=["chat"])
 # Services will be injected via dependency
 _chat_service: Optional[ChatService] = None
 _document_service: Optional[DocumentService] = None
+_team_service: Optional[TeamService] = None
 
 
-def set_services(chat_service: ChatService, document_service: DocumentService):
+def set_services(
+    chat_service: ChatService,
+    document_service: DocumentService,
+    team_service: Optional[TeamService] = None,
+):
     """Set service instances (called from server setup)."""
-    global _chat_service, _document_service
+    global _chat_service, _document_service, _team_service
     _chat_service = chat_service
     _document_service = document_service
+    _team_service = team_service
 
 
 class ChatRequest(BaseModel):
@@ -182,3 +188,75 @@ async def delete_session(session_id: str):
         return {"status": "deleted", "session_id": session_id}
     else:
         raise HTTPException(status_code=404, detail="Session not found")
+
+
+# ---------- Team Routes ----------
+
+
+class TeamCreateRequest(BaseModel):
+    """Request to create and execute a team task."""
+    task: str = Field(..., description="High-level task for the team")
+    members: Optional[List[dict]] = Field(
+        default=None,
+        description='Member configs: [{"name": "...", "role": "..."}]',
+    )
+    provider: Optional[str] = Field(
+        default=None, description="Default LLM provider"
+    )
+
+
+@router.post("/team/create")
+async def create_team(request: TeamCreateRequest):
+    """
+    Create a team and start executing a task.
+
+    If members is not provided, a default team (architect, developer, tester)
+    is created.
+
+    Returns the team_id and initial member info. The task runs in a
+    background thread; poll /api/team/{team_id}/status for progress.
+    """
+    if _team_service is None:
+        raise HTTPException(
+            status_code=500, detail="Team service not initialized"
+        )
+
+    import concurrent.futures
+
+    # Create team via service
+    from agent.team import TeamManager
+
+    if request.members:
+        team = _team_service.manager.create_team(
+            members_config=request.members,
+            provider=request.provider,
+        )
+    else:
+        team = _team_service.manager.create_default_team(
+            provider=request.provider,
+        )
+
+    # Execute in background thread
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    executor.submit(team.execute, request.task)
+
+    return {
+        "team_id": team.team_id,
+        "status": "started",
+        "members": [m.info.to_dict() for m in team.members.values()],
+    }
+
+
+@router.get("/team/{team_id}/status")
+async def get_team_status(team_id: str):
+    """Get current progress of a team."""
+    if _team_service is None:
+        raise HTTPException(
+            status_code=500, detail="Team service not initialized"
+        )
+
+    progress = _team_service.get_team_progress(team_id)
+    if progress is None:
+        raise HTTPException(status_code=404, detail="Team not found")
+
+    return progress.to_dict()

@@ -17,6 +17,20 @@ from .error_analyzer import ErrorAnalyzer, ErrorAnalysis, ErrorType, AutoFixer
 from .task_analyzer import TaskAnalyzer, TaskComplexity
 from .chat_mode import ChatMode, ChatHistory
 from .coding_agent import AgentMode
+from .team import (
+    Team,
+    TeamManager,
+    TeamLeader,
+    TeamMember,
+    MessageBus,
+    TeamTask,
+    TeamTaskStatus,
+    TeamMessage,
+    TeamMessageType,
+    TeamMemberInfo,
+    TeamStatus,
+    TeamProgress,
+)
 
 __all__ = [
     # State management
@@ -45,4 +59,17 @@ __all__ = [
     "ChatMode",
     "ChatHistory",
     "AgentMode",
+    # Team
+    "Team",
+    "TeamManager",
+    "TeamLeader",
+    "TeamMember",
+    "MessageBus",
+    "TeamTask",
+    "TeamTaskStatus",
+    "TeamMessage",
+    "TeamMessageType",
+    "TeamMemberInfo",
+    "TeamStatus",
+    "TeamProgress",
 ]

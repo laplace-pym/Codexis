@@ -259,3 +259,54 @@ class ChatService:
                 mode=mode,
             ):
                 yield event
+
+
+class TeamService:
+    """Service for managing team sessions via the web API."""
+
+    def __init__(self):
+        from agent.team import TeamManager
+        self.manager = TeamManager()
+
+    def create_and_execute_team(
+        self,
+        task: str,
+        members_config: Optional[list] = None,
+        provider: Optional[str] = None,
+        on_event: Optional[callable] = None,
+    ):
+        """
+        Create a team and execute a task synchronously.
+
+        Args:
+            task: High-level task description
+            members_config: Optional member configs list
+            provider: LLM provider
+            on_event: Event callback
+
+        Returns:
+            TeamProgress result
+        """
+        from agent.team import TeamProgress
+
+        if members_config:
+            team = self.manager.create_team(
+                members_config=members_config,
+                provider=provider,
+                on_event=on_event,
+            )
+        else:
+            team = self.manager.create_default_team(
+                provider=provider,
+                on_event=on_event,
+            )
+
+        progress = team.execute(task)
+        return progress
+
+    def get_team_progress(self, team_id: str):
+        """Get progress for a specific team."""
+        team = self.manager.get_team(team_id)
+        if team:
+            return team.get_progress()
+        return None

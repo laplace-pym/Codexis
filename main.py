@@ -83,6 +83,19 @@ Examples:
         action="store_true",
         help="Create execution plan before running task"
     )
+
+    parser.add_argument(
+        "--team",
+        action="store_true",
+        help="Use team mode with multiple agents working in parallel"
+    )
+
+    parser.add_argument(
+        "--team-size",
+        type=int,
+        default=3,
+        help="Number of team members (default: 3)"
+    )
     
     parser.add_argument(
         "--verbose", "-v",
@@ -129,14 +142,32 @@ def main():
             # Single task mode
             logger.info(f"Task: {args.task}")
             logger.separator()
-            
-            if args.plan:
+
+            if args.team:
+                from agent.team import TeamManager
+                logger.separator("Team Mode")
+                logger.info(f"Creating team with default members...")
+                manager = TeamManager()
+                team = manager.create_default_team(provider=args.provider or config.default_provider)
+                progress = team.execute(task=args.task)
+                logger.separator("Team Result")
+                logger.info(f"Status: {progress.status.value}")
+                logger.info(f"Tasks: {progress.completed_tasks}/{progress.total_tasks} completed")
+                logger.info(f"Failed: {progress.failed_tasks}")
+                logger.info(f"Duration: {progress.elapsed_seconds:.1f}s")
+                for member in progress.members:
+                    logger.info(f"  {member.name} ({member.role}): {member.tasks_completed} done, {member.tasks_failed} failed")
+                for task in team.tasks:
+                    icon = "+" if task.status.value == "completed" else "x"
+                    logger.info(f"  [{icon}] {task.title}: {(task.result or task.error or '')[:100]}")
+            elif args.plan:
                 result = agent.run(args.task, plan_first=True)
+                logger.separator("Result")
+                print(result)
             else:
                 result = agent.run_with_auto_fix(args.task)
-            
-            logger.separator("Result")
-            print(result)
+                logger.separator("Result")
+                print(result)
         else:
             # Interactive mode
             agent.interactive()

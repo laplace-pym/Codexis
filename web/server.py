@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
-from .services import ChatService, SessionManager, DocumentService
+from .services import ChatService, SessionManager, DocumentService, TeamService
 from .routes import chat_router, documents_router
 from .routes.chat import set_services as set_chat_services
 from .routes.documents import set_service as set_document_service
@@ -18,20 +18,22 @@ from .routes.documents import set_service as set_document_service
 _session_manager: SessionManager | None = None
 _chat_service: ChatService | None = None
 _document_service: DocumentService | None = None
+_team_service: TeamService | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifecycle."""
-    global _session_manager, _chat_service, _document_service
+    global _session_manager, _chat_service, _document_service, _team_service
 
     # Startup
     _session_manager = SessionManager()
     _chat_service = ChatService(_session_manager)
     _document_service = DocumentService()
+    _team_service = TeamService()
 
     # Inject services into routes
-    set_chat_services(_chat_service, _document_service)
+    set_chat_services(_chat_service, _document_service, _team_service)
     set_document_service(_document_service)
 
     # Start cleanup loop
